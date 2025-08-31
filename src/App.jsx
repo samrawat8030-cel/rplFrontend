@@ -5,12 +5,12 @@ import About from "./components/About";
 import PreviousLeagues from "./components/PreviousLeagues";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
-import UpcomingEvents from "./components/UpComingEvents";
 import Register from "./components/Register";
 import Payment from "./components/Payment";
 import WhatsAppButton from "./components/Whatsapp";
 import Sponsors from "./components/Sponsors";
 import CoreMember from "./components/CoreMember";
+import UpcomingEvents from "./components/UpcomingEvents";
 
 export default function App() {
   return (
