@@ -54,8 +54,10 @@ export default function Payment() {
 
       const data = await response.json();
       if (data.success) {
-        alert("✅ Registration Email Sent Successfully!");
-        navigate("/success", {
+        alert(
+          "✅ Congratulations registration successful! Check your email for details."
+        );
+        navigate("/", {
           state: {
             paymentId: `MANUAL-${Date.now()}`,
             name,
