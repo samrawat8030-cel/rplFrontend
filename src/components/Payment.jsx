@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import qr from "../assets/images/qr.jpeg";
 
 export default function Payment() {
   const location = useLocation();
@@ -14,107 +15,71 @@ export default function Payment() {
   const [isEditing, setIsEditing] = useState(!user);
   const [loading, setLoading] = useState(false);
 
+  // Payment state
+  const [showQR, setShowQR] = useState(false);
+  const [screenshot, setScreenshot] = useState(null);
+
   // Charges
   const registrationFee = 999;
   const gst = 180;
   const totalAmount = registrationFee + gst;
 
-  // Load Razorpay script dynamically
-  const loadRazorpay = () => {
-    if (document.getElementById("razorpay-script")) return;
-    const script = document.createElement("script");
-    script.id = "razorpay-script";
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    document.body.appendChild(script);
-  };
-
   // 📩 Function to call backend API for sending email
-  const sendEmailNotification = async (paymentId) => {
+  const sendEmailNotification = async () => {
+    if (!screenshot) {
+      alert("⚠️ Please upload payment screenshot before submitting.");
+      return;
+    }
+
     try {
       setLoading(true);
+
+      const formData = new FormData();
+      formData.append("recipients", JSON.stringify(["samrawat8030@gmail.com"])); // Organizer emails
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("phone", phone);
+      formData.append("category", user?.category || "N/A");
+      formData.append("village", user?.village || "N/A");
+      formData.append("transactionId", `MANUAL-${Date.now()}`);
+      formData.append("screenshot", screenshot);
+
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/send-email`, // ✅ Replace with Vercel backend URL if deployed
+        `${import.meta.env.VITE_API_BASE_URL}/api/send-email`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            recipients: ["samrawat8030@gmail.com"], // ✅ replace with real organizer emails
-            name,
-            email,
-            phone,
-            category: user?.category || "N/A",
-            village: user?.village || "N/A",
-            transactionId: paymentId,
-          }),
+          body: formData,
         }
       );
 
       const data = await response.json();
       if (data.success) {
-        console.log("✅ Emails sent successfully");
-      } else {
-        console.error("❌ Email sending failed", data.message);
-      }
-    } catch (err) {
-      console.error("Error calling email API:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePayment = () => {
-    if (!name || !email || !phone) {
-      alert("⚠️ Please fill all details before proceeding.");
-      return;
-    }
-
-    if (!window.Razorpay) {
-      alert("⚠️ Payment gateway is still loading. Please try again.");
-      return;
-    }
-
-    const options = {
-      key: "rzp_test_RBH7xkf09qHI34", // ✅ Replace with your Razorpay Key ID
-      amount: totalAmount * 100, // paise
-      currency: "INR",
-      name: "Tournament Registration",
-      description: "Player Registration Fee",
-      handler: function (response) {
-        alert(
-          `✅ Payment Successful! Payment ID: ${response.razorpay_payment_id}`
-        );
-
-        // 🔥 Trigger email API after successful payment
-        sendEmailNotification(response.razorpay_payment_id);
-
+        alert("✅ Registration Email Sent Successfully!");
         navigate("/success", {
           state: {
-            paymentId: response.razorpay_payment_id,
+            paymentId: `MANUAL-${Date.now()}`,
             name,
             email,
             phone,
           },
         });
-      },
-      prefill: {
-        name,
-        email,
-        contact: phone,
-      },
-      theme: {
-        color: "#F59E0B",
-      },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      } else {
+        alert("❌ Email sending failed: " + data.message);
+      }
+    } catch (err) {
+      console.error("Error calling email API:", err);
+      alert("❌ Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    loadRazorpay();
-  }, []);
+  // 📤 Handle screenshot upload
+  const handleScreenshotUpload = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setScreenshot(e.target.files[0]);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6 mt-24">
@@ -198,15 +163,48 @@ export default function Payment() {
           </div>
         </div>
 
-        {/* Pay Button */}
+        {/* Pay Button or QR Upload Flow */}
         <div className="mt-6">
-          <button
-            onClick={handlePayment}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-3 px-6 rounded-xl hover:from-yellow-300 hover:to-orange-400 transition disabled:opacity-50"
-          >
-            {loading ? "Sending Email..." : `Proceed to Pay ₹${totalAmount}`}
-          </button>
+          {!showQR ? (
+            <button
+              onClick={() => setShowQR(true)}
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-3 px-6 rounded-xl hover:from-yellow-300 hover:to-orange-400 transition"
+            >
+              Proceed to Pay ₹{totalAmount}
+            </button>
+          ) : (
+            <div className="space-y-4 text-center">
+              <p className="text-yellow-300 font-semibold">
+                Scan the QR Code below to make the payment
+              </p>
+              <img
+                src={qr}
+                alt="QR Code"
+                className="w-108 h-108 mx-auto border-4 border-yellow-400 rounded-lg shadow-lg"
+              />
+
+              <div className="mt-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleScreenshotUpload}
+                  className="w-full bg-gray-200 text-black p-2 rounded-lg"
+                />
+              </div>
+
+              <button
+                onClick={sendEmailNotification}
+                disabled={loading || !screenshot}
+                className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-400 disabled:opacity-50"
+              >
+                {loading
+                  ? "Sending Email..."
+                  : screenshot
+                  ? "Submit Payment Proof"
+                  : "Upload Screenshot to Continue"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
