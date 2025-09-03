@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 export default function Register({ prefilledUser }) {
   const [user, setUser] = useState(
@@ -26,6 +27,19 @@ export default function Register({ prefilledUser }) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center px-4 pt-36 pb-10">
+      <Helmet>
+        <title>RPL League Player Registration | rplleague.com</title>
+        <meta
+          name="description"
+          content="Register now for RPL NCR Gramin League. Fill in your details including name, email, contact number, player category, and village to complete your player registration."
+        />
+        <meta
+          name="keywords"
+          content="RPL League, Player Registration, Cricket Tournament, NCR Gramin League, Register Player"
+        />
+        <link rel="canonical" href="https://rplleague.com/register" />
+      </Helmet>
+
       <div className="w-full max-w-6xl">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
           Player Registration

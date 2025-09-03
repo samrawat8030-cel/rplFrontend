@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import qr from "../assets/images/qr.jpeg";
 
 export default function Payment() {
@@ -85,6 +86,19 @@ export default function Payment() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6 mt-24">
+      <Helmet>
+        <title>RPL League Payment | rplleague.com</title>
+        <meta
+          name="description"
+          content="Complete your RPL NCR Gramin League registration by making the payment. Upload your payment proof screenshot after scanning the QR code."
+        />
+        <meta
+          name="keywords"
+          content="RPL League Payment, Cricket Tournament Fees, NCR Gramin League Registration"
+        />
+        <link rel="canonical" href="https://rplleague.com/payment" />
+      </Helmet>
+
       <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md text-left">
         <h1 className="text-2xl font-bold mb-4 text-yellow-400">
           Confirm Your Details
