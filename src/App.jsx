@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async"; // 👈 import provider
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -14,39 +15,41 @@ import UpcomingEvents from "./components/UpcomingEvents";
 
 export default function App() {
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen">
-        {/* ✅ Navbar stays at top */}
-        <Navbar />
+    <HelmetProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          {/* ✅ Navbar stays at top */}
+          <Navbar />
 
-        {/* ✅ Main content grows to push footer down */}
-        <main className="flex-grow">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <Hero />
-                  <UpcomingEvents />
-                  <PreviousLeagues />
-                  <About />
-                  <CoreMember />
-                  <Sponsors />
-                  <Contact />
-                </>
-              }
-            />
-            <Route path="/register" element={<Register />} />
-            <Route path="/payment" element={<Payment />} />
-          </Routes>
-        </main>
+          {/* ✅ Main content grows to push footer down */}
+          <main className="flex-grow">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Hero />
+                    <UpcomingEvents />
+                    <PreviousLeagues />
+                    <About />
+                    <CoreMember />
+                    <Sponsors />
+                    <Contact />
+                  </>
+                }
+              />
+              <Route path="/register" element={<Register />} />
+              <Route path="/payment" element={<Payment />} />
+            </Routes>
+          </main>
 
-        {/* ✅ Fixed Footer */}
-        <Footer />
+          {/* ✅ Fixed Footer */}
+          <Footer />
 
-        {/* ✅ Floating WhatsApp Button */}
-        <WhatsAppButton />
-      </div>
-    </Router>
+          {/* ✅ Floating WhatsApp Button */}
+          <WhatsAppButton />
+        </div>
+      </Router>
+    </HelmetProvider>
   );
 }
